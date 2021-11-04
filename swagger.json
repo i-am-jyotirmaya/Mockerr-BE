@@ -1,0 +1,401 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the API for the Mockerr app. Mockerr allows you to create and save tests and send links to people who want to take the test.",
+    "version": "1.0.0",
+    "title": "Mockerr API",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "apiteam@swagger.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "localhost:5000",
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "quiz",
+      "description": "Create, update, get & save your quizzes for later consumption."
+    }
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "paths": {
+    "/quiz": {
+      "post": {
+        "tags": [
+          "quiz"
+        ],
+        "summary": "Create & add a new quiz",
+        "description": "Create your own quiz and save it for later use. This quiz can be later accessed by others based on the visibility.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Quiz object to be created & saved.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateQuiz"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "BadRequest"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "quiz"
+        ],
+        "summary": "Search for quizzes",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/QuizResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/quiz/{id}": {
+      "get": {
+        "tags": [
+          "quiz"
+        ],
+        "summary": "Get details of a saved quiz.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "description": "See the details saved for any given quiz by id.",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/QuizResponse"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "quiz"
+        ],
+        "summary": "Update a saved quiz.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateQuiz"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateQuiz": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "format": "string",
+          "example": "New Quiz",
+          "description": "Name of the quiz"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "set",
+            "incremental"
+          ],
+          "description": "Type of the quiz. Set quiz gives all questions at a time where as incremental gives queestions one by one."
+        },
+        "questions": {
+          "description": "List of questions for the quiz",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Question"
+          }
+        },
+        "feedback": {
+          "description": "List of feedback questions to be asked to test attendee after the test.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Feedback"
+          },
+          "example": [
+            {
+              "question": "Did you like the test?",
+              "type": "boolean"
+            },
+            {
+              "question": "Rate the test out of 5.",
+              "type": "rating"
+            }
+          ]
+        },
+        "isPublic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Feedback": {
+      "type": "object",
+      "description": "A feedback question object",
+      "properties": {
+        "question": {
+          "type": "string",
+          "format": "string"
+        },
+        "type": {
+          "type": "string",
+          "format": "string",
+          "enum": [
+            "boolean",
+            "rating",
+            "text"
+          ]
+        }
+      }
+    },
+    "Question": {
+      "type": "object",
+      "description": "A question object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "format": "string",
+          "example": "What is the capital of India?"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "Patna",
+            "New Delhi",
+            "Kolkata",
+            "Andaman"
+          ]
+        },
+        "correctOptionIndex": {
+          "description": "Index value of the correct option from the list passed in options.",
+          "type": "number",
+          "example": 1
+        }
+      }
+    },
+    "QuizResponse": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "format": "string",
+          "example": "New Quiz",
+          "description": "Name of the quiz"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "set",
+            "incremental"
+          ],
+          "description": "Type of the quiz. Set quiz gives all questions at a time where as incremental gives queestions one by one."
+        },
+        "questions": {
+          "description": "List of questions for the quiz",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/QuestionResponse"
+          }
+        },
+        "feedback": {
+          "description": "List of feedback questions to be asked to test attendee after the test.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Feedback"
+          },
+          "example": [
+            {
+              "question": "Did you like the test?",
+              "type": "boolean"
+            },
+            {
+              "question": "Rate the test out of 5.",
+              "type": "rating"
+            }
+          ]
+        },
+        "isPublic": {
+          "type": "boolean"
+        }
+      }
+    },
+    "QuestionResponse": {
+      "type": "object",
+      "description": "Question response object.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "string",
+          "description": "Question id from Db",
+          "example": "61837f5b84322a555255f2d6"
+        },
+        "text": {
+          "type": "string",
+          "format": "string",
+          "example": "What is the capital of India?"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          "example": [
+            {
+              "text": "Patna",
+              "id": "61837f5b84322a555255d346"
+            },
+            {
+              "text": "New Delhi",
+              "id": "61837f5b84322a555255d347"
+            },
+            {
+              "text": "Kolkata",
+              "id": "61837f5b84322a555255d348"
+            },
+            {
+              "text": "Andaman",
+              "id": "61837f5b84322a555255d349"
+            }
+          ]
+        },
+        "correctOptionIndex": {
+          "description": "Index value of the correct option from the list passed in options.",
+          "type": "number",
+          "example": 1
+        }
+      }
+    },
+    "SubmissionResponse": {
+      "type": "object",
+      "description": "The submission object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "submitted_on": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "number"
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AnswerResponse"
+          }
+        }
+      }
+    },
+    "AnswerRequest": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "description": "Id of the current question",
+          "type": "string"
+        },
+        "option": {
+          "type": "string",
+          "description": "Id of the selected option"
+        }
+      }
+    },
+    "AnswerResponse": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "$ref": "#/definitions/QuestionResponse"
+        },
+        "option": {
+          "type": "object",
+          "description": "Option object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "61837f5b84322a555255f2cf"
+            },
+            "text": {
+              "type": "string",
+              "example": "New Delhi "
+            }
+          }
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://swagger.io"
+  }
+}
